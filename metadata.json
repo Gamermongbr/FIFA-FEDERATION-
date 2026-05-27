@@ -1,0 +1,6 @@
+{
+  "name": "FIFA World Cup 2026 Schedule",
+  "description": "An elegant, interactive FIFA World Cup 2026 schedule app displaying all 104 matches side-by-side in Indian Standard Time (IST). Features modular layouts, country views, a simulator, knockout bracket visualization, and stadium cards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
