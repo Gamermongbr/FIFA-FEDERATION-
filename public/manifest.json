@@ -1,0 +1,23 @@
+{
+  "name": "FIFA 26 IST Hub",
+  "short_name": "FIFA 26",
+  "description": "The official tournament match center for the 2026 FIFA World Cup, synchronized for the Indian Standard Time zone.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}

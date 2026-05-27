@@ -27,6 +27,43 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authStatus, setAuthStatus] = useState<'idle' | 'loading' | 'authenticated' | 'unauthenticated'>('loading');
 
+  // PWA Install State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    // Listen for the beforeinstallprompt event
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault(); // Prevent standard Chrome UI from showing up
+      console.log('[PWA] beforeinstallprompt event fired');
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      console.log('[PWA] deferredPrompt is null, cannot prompt install');
+      alert('Install not supported on this device/browser, or app is already installed.');
+      return;
+    }
+
+    console.log('[PWA] Showing install prompt');
+    deferredPrompt.prompt();
+
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`[PWA] User choice outcome: ${outcome}`);
+    
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
+
   const fetchMatches = async () => {
     setLoading(true);
     try {
@@ -289,6 +326,25 @@ export default function App() {
                     <Bell className="h-4 w-4" />
                     Global Notifications
                   </button>
+                </div>
+
+                <div className="h-px bg-white/10 w-full" />
+
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Install App</span>
+                  {isInstallable ? (
+                    <button 
+                      onClick={handleInstallClick}
+                      className="flex items-center justify-center gap-2 w-full p-4 bg-emerald-500 text-black hover:bg-emerald-400 transition-colors text-[10px] font-black uppercase tracking-widest mt-2"
+                    >
+                      <Ticket className="h-4 w-4" />
+                      Download App / Install
+                    </button>
+                  ) : (
+                    <p className="text-[10px] text-white/40 leading-relaxed mt-2">
+                      Install not supported on this device/browser, or the app is already installed. Use your browser's "Add to Home Screen" option if available.
+                    </p>
+                  )}
                 </div>
               </div>
 
