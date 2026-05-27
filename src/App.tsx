@@ -66,28 +66,43 @@ export default function App() {
 
   const fetchMatches = async () => {
     setLoading(true);
+    let data;
     try {
       const response = await fetch('/api/matches');
-      const data = await response.json();
-      
-      const savedScores = localStorage.getItem('worldcup_2026_scores');
-      if (savedScores) {
-        try {
-          const parsedScores = JSON.parse(savedScores) as Record<number, { s1: number | null; s2: number | null }>;
-          data.forEach((m: Match) => {
-            if (parsedScores[m.id]) {
-              m.team1Score = parsedScores[m.id].s1;
-              m.team2Score = parsedScores[m.id].s2;
-            }
-          });
-        } catch (err) {
-          console.error('Error parsing saved scores', err);
-        }
-      }
-      setMatches(data);
-      setLastUpdated(new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }));
+      if (!response.ok) throw new Error('API fetch failed');
+      data = await response.json();
     } catch (error) {
-      console.error('Failed to fetch matches', error);
+      console.warn('API fetch failed, loading local static data fallback', error);
+      try {
+        const { generateMatches } = await import('./data/worldCupData');
+        data = generateMatches();
+      } catch (err) {
+        console.error('Fatal: Failed to load local matches data', err);
+        data = [];
+      }
+    }
+
+    try {
+      if (data && data.length > 0) {
+        const savedScores = localStorage.getItem('worldcup_2026_scores');
+        if (savedScores) {
+          try {
+            const parsedScores = JSON.parse(savedScores) as Record<number, { s1: number | null; s2: number | null }>;
+            data.forEach((m: Match) => {
+              if (parsedScores[m.id]) {
+                m.team1Score = parsedScores[m.id].s1;
+                m.team2Score = parsedScores[m.id].s2;
+              }
+            });
+          } catch (err) {
+            console.error('Error parsing saved scores', err);
+          }
+        }
+        setMatches(data);
+        setLastUpdated(new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }));
+      }
+    } catch (error) {
+      console.error('Failed to process matches', error);
     } finally {
       setLoading(false);
     }
