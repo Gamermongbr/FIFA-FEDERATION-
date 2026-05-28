@@ -14,6 +14,7 @@ import { addMatchToCalendar, getGoogleCalendarIntentUrl } from '../lib/calendar'
 import { getAccessToken } from '../lib/firebase';
 
 interface MatchCardProps {
+
   key?: number;
   match: Match;
   isFavorite: boolean;
@@ -28,16 +29,6 @@ export default function MatchCard({
   onUpdateScore,
 }: MatchCardProps) {
   const [isSyncing, setIsSyncing] = React.useState(false);
-  const [syncUrl, setSyncUrl] = React.useState<string | null>(null);
-  const [isScheduled, setIsScheduled] = React.useState(false);
-
-  React.useEffect(() => {
-    const scheduled = localStorage.getItem(`match_scheduled_${match.id}`);
-    if (scheduled) {
-      setSyncUrl(scheduled);
-      setIsScheduled(true);
-    }
-  }, [match.id]);
 
   const team1Info: Team | undefined = TEAMS[match.team1];
   const team2Info: Team | undefined = TEAMS[match.team2];
@@ -50,26 +41,18 @@ export default function MatchCard({
       // Fallback to manual intent URL if not signed in or OAuth is blocked
       const intentUrl = getGoogleCalendarIntentUrl(match);
       window.open(intentUrl, '_blank');
-      setSyncUrl(intentUrl);
-      setIsScheduled(true);
-      localStorage.setItem(`match_scheduled_${match.id}`, intentUrl);
       return;
     }
 
     setIsSyncing(true);
     try {
       const url = await addMatchToCalendar(match);
-      setSyncUrl(url);
-      setIsScheduled(true);
-      localStorage.setItem(`match_scheduled_${match.id}`, url);
+      window.open(url, '_blank');
     } catch (err: any) {
       console.error(err);
       // Fallback on error if API fails (e.g., origin blocked on Vercel)
       const intentUrl = getGoogleCalendarIntentUrl(match);
       window.open(intentUrl, '_blank');
-      setSyncUrl(intentUrl);
-      setIsScheduled(true);
-      localStorage.setItem(`match_scheduled_${match.id}`, intentUrl);
     } finally {
       setIsSyncing(false);
     }
@@ -171,26 +154,14 @@ export default function MatchCard({
           </div>
           
           <div className="flex items-center gap-2">
-            {isScheduled ? (
-              <a 
-                href={syncUrl || '#'} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500/20 transition-all"
-              >
-                <Check className="h-3 w-3" />
-                Scheduled
-              </a>
-            ) : (
-              <button
-                onClick={handleSyncToCalendar}
-                disabled={isSyncing}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 text-white/40 hover:text-fifa-blue hover:border-fifa-blue/30 text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
-              >
-                {isSyncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <CalendarPlus className="h-3 w-3" />}
-                Add to Cal
-              </button>
-            )}
+            <button
+              onClick={handleSyncToCalendar}
+              disabled={isSyncing}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 text-white/40 hover:text-fifa-blue hover:border-fifa-blue/30 text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+            >
+              {isSyncing ? <Loader2 className="h-3 w-3 animate-spin" /> : <CalendarPlus className="h-3 w-3" />}
+              Add to Cal
+            </button>
             <div className="text-right flex flex-col ml-2">
               <span className="text-[10px] text-white/40 uppercase tracking-widest font-black">Official Date</span>
               <span className="text-sm font-bold text-white/80 leading-tight tracking-tight uppercase">{ist.date}</span>
