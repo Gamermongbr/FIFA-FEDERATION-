@@ -104,9 +104,38 @@ export default function HeroSection({
         </div>
 
         {/* Global IST Sync Timer */}
-        <div className="lg:col-span-12 flex flex-col items-center justify-center mt-12 w-full">
-          {!timeLeft.isStarted && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl px-4">
+        <div 
+          className="lg:col-span-12 flex flex-col items-center justify-center mt-12 w-full cursor-pointer group"
+          onClick={() => setTimeLeft(prev => ({ ...prev, isStarted: !prev.isStarted }))}
+          title="Click to toggle Live/Countdown state"
+        >
+          {timeLeft.isStarted ? (
+            <div className="w-full max-w-3xl px-4 flex flex-col items-center justify-center bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-sm p-8 lg:p-12 transition-all relative overflow-hidden group-hover:border-emerald-500/50">
+              <div className="absolute inset-0 bg-emerald-500/5 animate-pulse pointer-events-none" />
+              <div className="flex items-center gap-4 mb-4">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <span className="text-emerald-500 font-black tracking-[0.3em] uppercase text-xs">Tournament Live</span>
+              </div>
+              <div className="text-white font-black text-4xl md:text-5xl lg:text-6xl uppercase tracking-tighter mb-4 text-center leading-none">
+                THE WORLD CUP <br/> IS <span className="text-emerald-500">UNDERWAY</span>
+              </div>
+              <p className="text-white/60 text-[10px] md:text-xs tracking-widest uppercase font-bold text-center">
+                Track daily matches, update your IST schedules, and follow group standings.
+              </p>
+              <div className="mt-8">
+                <img 
+                  src="https://files.catbox.moe/dkbv3z.png" 
+                  alt="FIFA World Cup 2026 Logo" 
+                  className="h-32 md:h-48 w-auto object-contain opacity-90 transition-opacity group-hover:opacity-100"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl px-4 group-hover:opacity-90 transition-opacity">
               {[
                 { label: 'Days', val: timeLeft.days, color: 'text-fifa-blue' },
                 { label: 'Hours', val: timeLeft.hours, color: 'text-white' },
@@ -124,8 +153,8 @@ export default function HeroSection({
           )}
           
           <div className="mt-8 flex items-center gap-3 text-fifa-blue font-bold tracking-widest text-xs uppercase animate-pulse">
-            <span className="h-2 w-2 rounded-full bg-fifa-blue shadow-[0_0_10px_#00a3ff]" />
-            Countdown to Kickoff in Estadio Azteca
+            <span className={`h-2 w-2 rounded-full ${timeLeft.isStarted ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-fifa-blue shadow-[0_0_10px_#00a3ff]'}`} />
+            {timeLeft.isStarted ? "Welcome to North America" : "Countdown to Kickoff in Estadio Azteca"}
           </div>
         </div>
       </div>
