@@ -1,6 +1,24 @@
 import { Match } from '../types';
 import { getAccessToken } from './firebase';
 
+export function getGoogleCalendarIntentUrl(match: Match): string {
+  const startDate = new Date(match.date);
+  const endDate = new Date(startDate.getTime() + 120 * 60 * 1000);
+
+  const formatGoogleDate = (date: Date) => {
+    return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+  };
+
+  const start = formatGoogleDate(startDate);
+  const end = formatGoogleDate(endDate);
+
+  const title = encodeURIComponent(`FIFA 26: ${match.team1} vs ${match.team2}`);
+  const details = encodeURIComponent(`Match ${match.id} - ${match.round}\nStadium: ${match.venue}\nOfficial FIFA 2026 IST Center Reminder`);
+  const location = encodeURIComponent(`${match.venue}, ${match.city}, ${match.country}`);
+
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${location}`;
+}
+
 export async function addMatchToCalendar(match: Match): Promise<string> {
   const token = await getAccessToken();
   if (!token) {

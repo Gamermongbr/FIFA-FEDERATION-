@@ -10,7 +10,7 @@ import { Star, MapPin, Calendar, Clock, Trophy, Zap, CalendarPlus, Check, Loader
 import { motion } from 'motion/react';
 import { formatIST } from '../utils/dateUtils';
 import TeamFlag from './TeamFlag';
-import { addMatchToCalendar } from '../lib/calendar';
+import { addMatchToCalendar, getGoogleCalendarIntentUrl } from '../lib/calendar';
 import { getAccessToken } from '../lib/firebase';
 
 interface MatchCardProps {
@@ -47,7 +47,12 @@ export default function MatchCard({
   const handleSyncToCalendar = async () => {
     const token = await getAccessToken();
     if (!token) {
-      alert('Please connect your Google Calendar from the side menu first (Hamburger icon top left).');
+      // Fallback to manual intent URL if not signed in or OAuth is blocked
+      const intentUrl = getGoogleCalendarIntentUrl(match);
+      window.open(intentUrl, '_blank');
+      setSyncUrl(intentUrl);
+      setIsScheduled(true);
+      localStorage.setItem(`match_scheduled_${match.id}`, intentUrl);
       return;
     }
 
@@ -59,7 +64,12 @@ export default function MatchCard({
       localStorage.setItem(`match_scheduled_${match.id}`, url);
     } catch (err: any) {
       console.error(err);
-      alert(err.message || 'Failed to sync to calendar');
+      // Fallback on error if API fails (e.g., origin blocked on Vercel)
+      const intentUrl = getGoogleCalendarIntentUrl(match);
+      window.open(intentUrl, '_blank');
+      setSyncUrl(intentUrl);
+      setIsScheduled(true);
+      localStorage.setItem(`match_scheduled_${match.id}`, intentUrl);
     } finally {
       setIsSyncing(false);
     }
