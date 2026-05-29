@@ -13,55 +13,54 @@ export function useBackgroundMusic() {
     const audio = new Audio();
     audioRef.current = audio;
     audio.volume = 0.3;
-    audio.preload = 'auto'; // Optimize for smooth playback without full download delay
-
+    
     let isUnmounted = false;
-    let isFirstPlay = true;
+    let lastPlayedIdx = -1;
 
-    const playRandomSong = () => {
+    const playNextSong = () => {
       if (isUnmounted) return;
-      const randomIdx = Math.floor(Math.random() * SONGS.length);
-      audio.src = SONGS[randomIdx];
-      audio.load(); // Tells browser to start downloading and buffering immediately
-    };
-
-    const attemptPlay = () => {
-      if (isUnmounted) return;
-      const playPromise = audio.play();
       
-      if (isFirstPlay && playPromise !== undefined) {
-         isFirstPlay = false;
-         playPromise.catch((err) => {
-            console.warn("Autoplay blocked, waiting for user interaction...", err);
-            const startAudio = () => {
-              if (!audio.muted && audio.paused) {
-                audio.play().catch(() => {});
-              }
-              document.removeEventListener('click', startAudio);
-              document.removeEventListener('touchstart', startAudio);
-            };
-            document.addEventListener('click', startAudio);
-            document.addEventListener('touchstart', startAudio);
-         });
-      } else if (playPromise !== undefined) {
-         playPromise.catch(() => {});
+      let nextIdx = Math.floor(Math.random() * SONGS.length);
+      // Prevent repeating the same song consecutively
+      if (SONGS.length > 1) {
+        while (nextIdx === lastPlayedIdx) {
+          nextIdx = Math.floor(Math.random() * SONGS.length);
+        }
+      }
+      
+      lastPlayedIdx = nextIdx;
+      audio.src = SONGS[nextIdx];
+      
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn("Autoplay blocked, waiting for user interaction...", err);
+          const startAudio = () => {
+            if (!audio.muted && audio.paused) {
+              audio.play().catch(() => {});
+            }
+            document.removeEventListener('click', startAudio);
+            document.removeEventListener('touchstart', startAudio);
+            document.removeEventListener('keydown', startAudio);
+          };
+          document.addEventListener('click', startAudio);
+          document.addEventListener('touchstart', startAudio);
+          document.addEventListener('keydown', startAudio);
+        });
       }
     };
 
-    // 'canplaythrough' ensures the browser has buffered enough to play smoothly to the end
-    audio.addEventListener('canplaythrough', attemptPlay);
-    audio.addEventListener('ended', playRandomSong);
+    audio.addEventListener('ended', playNextSong);
     audio.addEventListener('error', () => {
       console.warn("Audio load error, skipping to another track...");
-      setTimeout(playRandomSong, 2000);
+      setTimeout(playNextSong, 2000);
     });
 
-    playRandomSong();
+    playNextSong();
 
     return () => {
       isUnmounted = true;
-      audio.removeEventListener('canplaythrough', attemptPlay);
-      audio.removeEventListener('ended', playRandomSong);
+      audio.removeEventListener('ended', playNextSong);
       audio.pause();
       audio.src = '';
     };
@@ -70,7 +69,7 @@ export function useBackgroundMusic() {
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted;
-      if (!isMuted && audioRef.current.paused && audioRef.current.readyState >= 3) {
+      if (!isMuted && audioRef.current.paused && audioRef.current.src) {
         audioRef.current.play().catch(() => {});
       }
     }
