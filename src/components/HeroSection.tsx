@@ -56,6 +56,17 @@ export default function HeroSection({
 
   return (
     <div id="hero-banner" className="relative w-full overflow-hidden bg-black py-12 md:py-20 mb-12 border-b-4 border-fifa-blue">
+      {/* Background Poster Image */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-50">
+        <img 
+          src="https://files.catbox.moe/6d0spj.png" 
+          alt="World Cup Players" 
+          className="w-full h-full object-cover object-top mix-blend-luminosity"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+      </div>
+
       {/* Background Graphic Patterns */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

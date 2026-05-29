@@ -10,14 +10,16 @@ import MatchesSection from './components/MatchesSection';
 import GroupStandingsView from './components/GroupStandingsView';
 import KnockoutBracket from './components/KnockoutBracket';
 import StadiumsView from './components/StadiumsView';
-import { Calendar, Globe, Trophy, Ticket, LayoutDashboard, RefreshCw, Menu, X, Bell, LogIn, LogOut, CheckCircle2 } from 'lucide-react';
+import { Calendar, Globe, Trophy, Ticket, LayoutDashboard, RefreshCw, Menu, X, Bell, LogIn, LogOut, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { initAuth, googleSignIn, logout as firebaseLogout } from './lib/firebase';
 import { User } from 'firebase/auth';
+import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 
 type AppTabType = 'matches' | 'standings' | 'bracket' | 'stadiums';
 
 export default function App() {
+  const { isMuted, toggleMute } = useBackgroundMusic();
   const [activeTab, setActiveTab] = useState<AppTabType>('matches');
   const [matches, setMatches] = useState<Match[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -340,6 +342,19 @@ export default function App() {
                   <button className="flex items-center gap-3 p-3 text-white/60 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-black uppercase tracking-widest">
                     <Bell className="h-4 w-4" />
                     Global Notifications
+                  </button>
+                </div>
+
+                <div className="h-px bg-white/10 w-full" />
+
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Audio Settings</span>
+                  <button 
+                    onClick={toggleMute}
+                    className="flex items-center gap-3 p-3 text-white/60 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-black uppercase tracking-widest"
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    {isMuted ? 'Unmute BG Music' : 'Mute BG Music'}
                   </button>
                 </div>
 
