@@ -16,15 +16,23 @@ export function useBackgroundMusic() {
     
     let isUnmounted = false;
     let lastPlayedIdx = -1;
+    let isFirstPlay = true;
 
     const playNextSong = () => {
       if (isUnmounted) return;
       
-      let nextIdx = Math.floor(Math.random() * SONGS.length);
-      // Prevent repeating the same song consecutively
-      if (SONGS.length > 1) {
-        while (nextIdx === lastPlayedIdx) {
-          nextIdx = Math.floor(Math.random() * SONGS.length);
+      let nextIdx = 0;
+      
+      if (isFirstPlay) {
+        nextIdx = 0; // Target song index for first play
+        isFirstPlay = false;
+      } else {
+        nextIdx = Math.floor(Math.random() * SONGS.length);
+        // Prevent repeating the same song consecutively
+        if (SONGS.length > 1) {
+          while (nextIdx === lastPlayedIdx) {
+            nextIdx = Math.floor(Math.random() * SONGS.length);
+          }
         }
       }
       
@@ -39,13 +47,17 @@ export function useBackgroundMusic() {
             if (!audio.muted && audio.paused) {
               audio.play().catch(() => {});
             }
+            // Remove listeners once started
             document.removeEventListener('click', startAudio);
             document.removeEventListener('touchstart', startAudio);
             document.removeEventListener('keydown', startAudio);
+            document.removeEventListener('pointerdown', startAudio);
           };
+          // Attach to all general user interactions
           document.addEventListener('click', startAudio);
           document.addEventListener('touchstart', startAudio);
           document.addEventListener('keydown', startAudio);
+          document.addEventListener('pointerdown', startAudio);
         });
       }
     };
