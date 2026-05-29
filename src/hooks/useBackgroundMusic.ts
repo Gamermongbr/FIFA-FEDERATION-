@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 const SONGS = [
-  'https://files.catbox.moe/0si8tp.mp3',
+  'https://file.garden/ahm7yN556FSwWArt/Arhbo%20featuring%20Ozuna%20%26%20GIMS%20%20FIFA%20World%20Cup%202022%20Official%20Soundtrack.mp3',
   'https://files.catbox.moe/5xbq9h.mp3'
 ];
 
